@@ -1,0 +1,21 @@
+Install python 3.6 (installed for all with change to path env)
+Create virtual env
+	python -m venv C:\SamplePro\VirtualEnv
+
+Activate virtual env (using command prompt)
+	C:\SamplePro\VirtualEnv\Scripts\activate.bat
+
+Install required packages (without internet connection)
+	python -m pip install -r C:\SamplePro\Source\requirements.txt -f C:\SamplePro\Requirements --no-index
+
+Save SamplePro account password
+	python C:\SamplePro\Source\set_password.py
+
+Deactivate virtual env (using command prompt)
+	C:\SamplePro\VirtualEnv\Scripts\deactivate.bat
+
+Note: C:\SamplePro\ScheduleTasks contains bat files with hardcoded paths (C:\SamplePro).
+
+Create Tasks in Task Scheduler
+- tasks can be imported from xml in C:\SamplePro\ScheduleTasks (there are 5 separate tasks)
+Note: The tasks reference bat files in C:\SamplePro\ScheduleTasks
