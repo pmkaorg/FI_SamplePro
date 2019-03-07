@@ -260,7 +260,7 @@ paket-files/
 __pycache__/
 *.pyc
 
-# SampleSpro specific
+# SamplePro specific
 Requirements/
 VirtualEnv/
 *.pdf

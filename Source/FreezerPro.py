@@ -123,7 +123,7 @@ def get_token():
         raise RuntimeError('Unexpected result returned: {}'.format(data))
 
 
-def freezerpro_post(params):
+def freezerpro_post(params, file={}):
     """ 
     Wrapper for posting to FreezerPro api using authorization token
     Token will be requested if needed
@@ -138,7 +138,10 @@ def freezerpro_post(params):
     urllib3.disable_warnings(category=InsecureRequestWarning)
     r = requests.post(API_URL, 
                       headers={'Content-Type': 'application/json'},
-                      data=json.dumps(params), verify=False )
+                      # data=json.dumps(params), 
+                      json=params,
+                      files=file,
+                      verify=False )
     r.raise_for_status()
     data = r.json()
     if 'error' in data:
@@ -147,6 +150,29 @@ def freezerpro_post(params):
         else:
             raise RuntimeError('Unexpected result returned: {}'.format(data))
     return data
+
+
+def freezerpro_retrieve(params, resultName):
+    """ 
+    Wrapper for retrieving data from freezerpro where results could exceed hard limit of 1000 values
+    Need to use limit and start parameters to make multiple calls
+    :param params: dictionary of parameters
+    :param resultName: key value that is returned from call (typically Total and one other key)
+    :return: list of results
+    """
+    params['limit'] = 1000
+    data = freezerpro_post(params)
+    results = data[resultName]
+    total = data['Total']
+    while len(results) < total:
+        params['start'] = len(results)
+        params['dir'] = 'ASC'
+        more = freezerpro_post(params)
+        if (len(more[resultName]) == 0):
+            print('freezerpro_retrieve: All results not returned Total={} Returned={}'.format(total, len(results)))
+            break
+        results.extend(more[resultName])
+    return results    
 
 
 def get_users():
