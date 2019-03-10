@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 """ Update Sample Groups based on TechnologyOne Project and Task Codes
+Sample groups that do not exist in SamplePro (by name) are added where name is
+a combination of Science Group, Project Code, and Task Number e.g. BP 568 A49147 
+Note: Sample groups are never removed from SamplePro
+Note: Changes to task description do not cause an update in SamplePro
+Note: Only taks codes from science groups listed in SCIENCE_GROUPS list are processed (all others are ignored).
+
+Input: csv file generated daily and saved to location as defined in config.ini [System | taskcode_file]
+
 
 Author: Wayne Schou
 Date: Dec 2018
@@ -11,6 +19,11 @@ import time
 import json
 from FreezerPro import freezerpro_post, freezerpro_retrieve, email_Support
 import get_config
+
+""" Only use csv records belonging to these science groups (csv field SELN_TYPE11_CODE)
+Note: BI is techone code for BT (both have been included in this list)
+"""
+SCIENCE_GROUPS = ['FG', 'FS', 'FP', 'BT', 'BI', 'CT', 'BP', 'WF']
 
 
 def import_samplegroups(task_codes):
@@ -44,16 +57,17 @@ if __name__ == '__main__':
         with open(taskcode_filename, 'r', newline='', encoding='utf-8-sig') as taskcode_file:
             dictreader = csv.DictReader(taskcode_file)
             for row in dictreader:
-                taskcodes.append({
-                    'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']),
-                    'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description'])})
+                if (row['SELN_TYPE11_CODE'] in SCIENCE_GROUPS):
+                    taskcodes.append({
+                        'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']),
+                        'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description'])})
 
         #identify new taskcodes
         existing_taskcodes = [sample_group['name'] for sample_group in existing_sample_groups]
         new_taskcodes = [taskcode for taskcode in taskcodes if taskcode['Name'] not in existing_taskcodes]
 
         if new_taskcodes:
-            msg = 'Added following {} sample groups\n{}'.format(len(new_taskcodes), '\n'.join(new_taskcodes))
+            msg = 'Added following {} sample groups in science groups{}\n{}'.format(len(new_taskcodes), SCIENCE_GROUPS, '\n'.join(new_taskcodes))
             email_Support('SamplePro Sample Group Updates', msg)
             import_samplegroups(new_taskcodes)
     except Exception as err:
