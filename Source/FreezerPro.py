@@ -33,6 +33,7 @@ from email.mime.text import MIMEText
 import keyring
 from datetime import datetime, date, timedelta
 import re
+import traceback
 import pandas as pd
 import get_config
 
@@ -338,6 +339,8 @@ def send_html(to, email_addresses, subject, msg):
 def send(to, email_addresses, subject, msg):
     s = smtplib.SMTP(SMTPServer, SMTPPort)
 
+    if isinstance(msg, Exception):
+        msg = str(msg) +'\n\n' + ''.join(traceback.format_exception(type(msg), msg, msg.__traceback__))
     msg = "From: {}\r\n"\
           "To: {}\r\n"\
           "Subject:{}\r\n\r\n"\

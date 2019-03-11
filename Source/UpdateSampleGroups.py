@@ -2,15 +2,22 @@
 """ Update Sample Groups based on TechnologyOne Project and Task Codes
 Sample groups that do not exist in SamplePro (by name) are added where name is
 a combination of Science Group, Project Code, and Task Number e.g. BP 568 A49147 
-Note: Sample groups are never removed from SamplePro
+Note: Sample groups are never removed from SamplePro and existing sample groups are not altered.
 Note: Changes to task description do not cause an update in SamplePro
-Note: Only taks codes from science groups listed in SCIENCE_GROUPS list are processed (all others are ignored).
 
 Input: csv file generated daily and saved to location as defined in config.ini [System | taskcode_file]
+Output: Updated samples groups plus email to support if new sample groups added.
+Config.ini:
+    System | taskcode_file: path to csv of techone taskcodes e.g. C:\\SamplePro\\TaskCodes.csv
+    System | taskcode_science_groups: list of science groups to import. e.g. ['FG', 'FS']. 
 
+Exceptions (emailed to support):
+    - Must define location of taskcode file in config.ini
+    - {taskcode_file} not found
+    - Must define taskcode_science_groups in config.ini e.g. taskcode_science_groups = ['FG', 'BP']
 
 Author: Wayne Schou
-Date: Dec 2018
+Date: Mar 2019
 
 """
 
@@ -19,11 +26,8 @@ import time
 import json
 from FreezerPro import freezerpro_post, freezerpro_retrieve, email_Support
 import get_config
-
-""" Only use csv records belonging to these science groups (csv field SELN_TYPE11_CODE)
-Note: BI is techone code for BT (both have been included in this list)
-"""
-SCIENCE_GROUPS = ['FG', 'FS', 'FP', 'BT', 'BI', 'CT', 'BP', 'WF']
+from ast import literal_eval
+from os.path import isfile
 
 
 def import_samplegroups(task_codes):
@@ -52,24 +56,34 @@ if __name__ == '__main__':
 
         # load TechOne tasks code list
         config = get_config.get_config()
-        taskcode_filename = config['System']['taskcode_file']
+        # taskcode_filename = config['System']['taskcode_file']
+        taskcode_filename = config['System'].get('taskcode_file', fallback=None)
+        assert taskcode_filename, 'Must define location of taskcode file in config.ini using taskcode_file attribute.'
+        assert isfile(taskcode_filename), '{} not found'.format(taskcode_filename)
+        try: 
+            science_groups = literal_eval( config['System'].get('taskcode_science_groups', fallback='None' ))
+        except Exception as err:
+            raise ValueError("Error when reading config.ini taskcode_science_groups") from err
+        assert science_groups, "Must define taskcode_science_groups in config.ini e.g. taskcode_science_groups = ['FG', 'BP']"
         taskcodes = []
-        with open(taskcode_filename, 'r', newline='', encoding='utf-8-sig') as taskcode_file:
-            dictreader = csv.DictReader(taskcode_file)
-            for row in dictreader:
-                if (row['SELN_TYPE11_CODE'] in SCIENCE_GROUPS):
-                    taskcodes.append({
-                        'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']),
-                        'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description'])})
-
+        try:
+            with open(taskcode_filename, 'r', newline='', encoding='utf-8-sig') as taskcode_file:
+                dictreader = csv.DictReader(taskcode_file)
+                for row in dictreader:
+                    if (row['SELN_TYPE11_CODE'] in science_groups):
+                        taskcodes.append({
+                            'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']),
+                            'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description'])})
+        except Exception as err:
+            raise Exception("Error when reading csv") from err
         #identify new taskcodes
         existing_taskcodes = [sample_group['name'] for sample_group in existing_sample_groups]
         new_taskcodes = [taskcode for taskcode in taskcodes if taskcode['Name'] not in existing_taskcodes]
 
         if new_taskcodes:
+##            import_samplegroups(new_taskcodes)
             msg = 'Added following {} sample groups in science groups{}\n{}'.format(len(new_taskcodes), SCIENCE_GROUPS, '\n'.join(new_taskcodes))
             email_Support('SamplePro Sample Group Updates', msg)
-            import_samplegroups(new_taskcodes)
     except Exception as err:
         # print(err)
         email_Support('SamplePro error in Update Sample Groups', err )
