@@ -81,7 +81,7 @@ if __name__ == '__main__':
         new_taskcodes = [taskcode for taskcode in taskcodes if taskcode['Name'] not in existing_taskcodes]
 
         if new_taskcodes:
-##            import_samplegroups(new_taskcodes)
+            import_samplegroups(new_taskcodes)
             msg = 'Added following {} sample groups in science groups{}\n{}'.format(len(new_taskcodes), SCIENCE_GROUPS, '\n'.join(new_taskcodes))
             email_Support('SamplePro Sample Group Updates', msg)
     except Exception as err:
