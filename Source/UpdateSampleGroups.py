@@ -72,10 +72,11 @@ if __name__ == '__main__':
                 for row in dictreader:
                     if (row['SELN_TYPE11_CODE'] in science_groups):
                         taskcodes.append({
-                            'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']),
-                            'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description'])})
+                            'Name':'{} {} {}'.format(row['SELN_TYPE11_CODE'], row['Project_Code'], row['Task_Number']).strip(),
+                            'Description': '{} - {}'.format(row['Project_Name'], row['Task_Description']).strip()})
         except Exception as err:
             raise Exception("Error when reading csv") from err
+        # make taskcodes unique (by name)
         #identify new taskcodes
         existing_taskcodes = [sample_group['name'] for sample_group in existing_sample_groups]
         new_taskcodes = [taskcode for taskcode in taskcodes if taskcode['Name'] not in existing_taskcodes]
