@@ -78,7 +78,7 @@ if __name__ == '__main__':
             raise Exception("Error when reading csv") from err
         # make taskcodes unique (by name)
         #identify new taskcodes
-        existing_taskcodes = [sample_group['name'] for sample_group in existing_sample_groups]
+        existing_taskcodes = [sample_group['name'].strip() for sample_group in existing_sample_groups]
         new_taskcodes = [taskcode for taskcode in taskcodes if taskcode['Name'] not in existing_taskcodes]
 
         if new_taskcodes:
