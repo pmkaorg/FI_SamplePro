@@ -501,11 +501,14 @@ def create_html_msg_about_states(*states):
             msg.append('')
             continue
         bSend_email = True
+        for location in locations:
+            sample = get_sample(location['sample_id'])
+            location['owner'] = sample['owner']
         # print('Location fields', locations[0].keys())
         msg.append('These samples currently have status <b>{}</b>:'.format(state.name))
         html = dict_to_html(locations, 
-                            ['sample_id', 'barcode_tag', 'sampletype_name', 'location'], 
-                            ['Sample Id', 'Barcode', 'Sample Type', 'Location'])
+                            ['sample_id', 'barcode_tag', 'sampletype_name', 'location', 'owner'], 
+                            ['Sample Id', 'Barcode', 'Sample Type', 'Location', 'Owner'])
         msg.append(html)
         msg.append('')
 
