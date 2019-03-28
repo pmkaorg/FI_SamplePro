@@ -6,7 +6,7 @@ Date: August 2018
 
 """
 
-from FreezerPro import send_html, dict_to_html, email_OperationsOfficer, email_Support, Vial_States, \
+from FreezerPro import send_html, dict_to_html, email_OperationsOfficer, email_Support, Vial_States, STATE_NAME,\
     get_locations_in_state, get_users_by_fullname, get_sample, SUPPORT_EMAIL
 
 
@@ -33,7 +33,7 @@ def email_sample_udf_about_state_change(user_udf, state):
     if invalid_udf_locations:  # there are samples in specified state where user_udf does not contain valid user
         msg = []
         msg.append('These samples with status {} do not have a valid {}:'
-                   .format(state.name, user_udf))
+                   .format(STATE_NAME[state], user_udf))
         html = dict_to_html(invalid_udf_locations, 
                             ['sample_id', 'barcode_tag', 'sample_type', 'owner', user_udf], 
                             ['Sample Id', 'Barcode', 'Sample Type', 'Owner', user_udf])
@@ -48,7 +48,7 @@ def email_sample_udf_about_state_change(user_udf, state):
         msg = []
         # print('Location fields', locations[0].keys())
         msg.append('These samples (with {}={}) currently have status {}:'
-                   .format(user_udf, user['fullname'], state.name))
+                   .format(user_udf, user['fullname'], STATE_NAME[state]))
         html = dict_to_html(locations_of_user, 
                             ['sample_id', 'barcode_tag', 'sample_type', 'owner'], 
                             ['Sample Id', 'Barcode', 'Sample Type', 'Owner'])

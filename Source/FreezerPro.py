@@ -82,22 +82,25 @@ class Vial_States(IntEnum):
     DisposeRequest = 8
     Disposed = 9
     ReturnToSource = 6,
+    Returned = 7,
     ApprovalRequested = 10,
     StoreRequestApproved = 11,
     AwaitingDelivery = 12,
     VeritecRequest = 13,
 
-VIAL_STATE_TYPES = [
-    {'id':Vial_States.RetrieveRequest, 'name':'Retrieve Request'},
-    {'id':Vial_States.StoreRequest, 'name':'Store Request'},
-    {'id':Vial_States.DisposeRequest, 'name':'Dispose Request'},
-    {'id':Vial_States.Disposed, 'name':'Disposed'},
-    {'id':Vial_States.ReturnToSource, 'name':'Return to Source'},
-    {'id':Vial_States.ApprovalRequested, 'name':'Approval Requested'},
-    {'id':Vial_States.StoreRequestApproved, 'name':'Store Request Approved'},
-    {'id':Vial_States.AwaitingDelivery, 'name':'Awaiting Delivery'},
-    {'id':Vial_States.VeritecRequest, 'name':'Veritec Request'},
-                   ]
+
+STATE_NAME = {
+    Vial_States.RetrieveRequest:'Retrieve Request',
+    Vial_States.StoreRequest:'Store Request',
+    Vial_States.DisposeRequest:'Dispose Request',
+    Vial_States.Disposed:'Disposed',
+    Vial_States.ReturnToSource:'Return to Source',
+    Vial_States.Returned:'Returned',
+    Vial_States.ApprovalRequested:'Approval Requested',
+    Vial_States.StoreRequestApproved:'Store Request Approved',
+    Vial_States.AwaitingDelivery:'Awaiting Delivery',
+    Vial_States.VeritecRequest:'Veritec Request'
+    }
 
 auth_token = None
 
@@ -420,7 +423,7 @@ def samples_with_state_changes(date_flag, states=['Retrieve Request',
 
 
 def samples_nearing_reviewdate(days):
-    """Will exclude samples that have been disposed or in state disposerequest
+    """Will exclude samples that have been disposed, disposerequest, returned or returntosource
     """
     today = date.today()
     before_date = today + timedelta(days=days+1)
@@ -443,21 +446,24 @@ def samples_nearing_reviewdate(days):
     samples = data['Samples']
     if data['Total'] != len(samples):
         raise RuntimeError('Not all returned')
-    # exclude samples where ANY?? vial in state DisposeRequested or Disposed
     for sample in samples[:]:
         sample['Review Date'] = sample['udfs']['Review Date']
         sample_rec = get_sample(sample['id'])
         sample['location'] = sample_rec['location']  # add location result
+        # exclude samples where ANY?? vial in state DisposeRequested, Disposed, Returned, or ReturnToSource
         vials = get_vials(sample['id'])
         for vial in vials:
-            if vial['state_info'] in ['Disposed', 'Dispose Request']:
+            if vial['state_info'] in [STATE_NAME[Vial_States.Disposed], 
+                                      STATE_NAME[Vial_States.DisposeRequest],
+                                      STATE_NAME[Vial_States.Returned],
+                                      STATE_NAME[Vial_States.ReturnToSource]]:
                 samples.remove(sample)
                 break
     return samples
 
 
 def samples_reviewdate_overdue():
-    """Will exclude samples that have been disposed or in state disposerequest
+    """Will exclude samples that have been disposed, disposerequest, returned or returntosource
     """
     today = date.today()
     data = freezerpro_post({'method': 'advanced_search',
@@ -473,14 +479,17 @@ def samples_reviewdate_overdue():
     samples = data['Samples']
     if data['Total'] != len(samples):
         raise RuntimeError('Not all returned')
-    # exclude samples where ANY?? vial in state DisposeRequested or Disposed
     for sample in samples[:]:
         sample['Review Date'] = sample['udfs']['Review Date']
         sample_rec = get_sample(sample['id'])
         sample['location'] = sample_rec['location']
+        # exclude samples where ANY?? vial in state DisposeRequested, Disposed, Returned, or ReturnToSource
         vials = get_vials(sample['id'])
         for vial in vials:
-            if vial['state_info'] in ['Disposed', 'Dispose Request']:
+            if vial['state_info'] in [STATE_NAME[Vial_States.Disposed], 
+                                      STATE_NAME[Vial_States.DisposeRequest],
+                                      STATE_NAME[Vial_States.Returned],
+                                      STATE_NAME[Vial_States.ReturnToSource]]:
                 samples.remove(sample)
                 break
     return samples
@@ -497,7 +506,7 @@ def create_html_msg_about_states(*states):
     for state in states:
         locations = get_locations_in_state(state.value)
         if not locations:
-            msg.append('No samples have status <b>{}</b>.'.format(state.name))
+            msg.append('No samples have status <b>{}</b>.'.format(STATE_NAME[state]))
             msg.append('')
             continue
         bSend_email = True
@@ -505,7 +514,7 @@ def create_html_msg_about_states(*states):
             sample = get_sample(location['sample_id'])
             location['owner'] = sample['owner']
         # print('Location fields', locations[0].keys())
-        msg.append('These samples currently have status <b>{}</b>:'.format(state.name))
+        msg.append('These samples currently have status <b>{}</b>:'.format(STATE_NAME[state]))
         html = dict_to_html(locations, 
                             ['sample_id', 'barcode_tag', 'sampletype_name', 'location', 'owner'], 
                             ['Sample Id', 'Barcode', 'Sample Type', 'Location', 'Owner'])
@@ -516,7 +525,7 @@ def create_html_msg_about_states(*states):
         return None
 
     # retreive names for selected vial state id
-    vial_state_names = ["'"+next(vst['name'] for vst in VIAL_STATE_TYPES if vst['id'] == id)+"'" for id in states]
+    vial_state_names = [STATE_NAME[state_id] for state_id in states]
 
     sample_state_changes = samples_with_state_changes('today')
     # remove state changes not in states

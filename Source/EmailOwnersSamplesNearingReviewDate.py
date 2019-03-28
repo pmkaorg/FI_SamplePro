@@ -1,6 +1,6 @@
 #! python3
 """ Email owners of samples when samples are within 30 days of Review Date
-Will not report on samples where ANY sample vial/location has a Disposed or Dispose Request state
+Will not report on samples where ANY sample vial/location has a Disposed, Dispose Request, Returned, ReturnToSource state
 """
 
 from FreezerPro import samples_nearing_reviewdate, dict_to_html, send_html, email_Support, get_users_by_id, SUPPORT_EMAIL, \
