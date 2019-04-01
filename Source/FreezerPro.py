@@ -323,6 +323,7 @@ def dict_to_html(data, keys, headers):
     html = df.to_html(escape=False, index=False)
     return html
 
+
 def send_html(to, email_addresses, subject, msg):
     s = smtplib.SMTP(SMTPServer, SMTPPort)
 
@@ -450,15 +451,18 @@ def samples_nearing_reviewdate(days):
         sample['Review Date'] = sample['udfs']['Review Date']
         sample_rec = get_sample(sample['id'])
         sample['location'] = sample_rec['location']  # add location result
-        # exclude samples where ANY?? vial in state DisposeRequested, Disposed, Returned, or ReturnToSource
+        # exclude samples where all vials in state DisposeRequested, Disposed, Returned, or ReturnToSource
         vials = get_vials(sample['id'])
+        b_all_gone = True
         for vial in vials:
-            if vial['state_info'] in [STATE_NAME[Vial_States.Disposed], 
+            if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed], 
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
                                       STATE_NAME[Vial_States.ReturnToSource]]:
-                samples.remove(sample)
+                b_all_gone = False
                 break
+        if b_all_gone:
+            samples.remove(sample)
     return samples
 
 
@@ -483,15 +487,18 @@ def samples_reviewdate_overdue():
         sample['Review Date'] = sample['udfs']['Review Date']
         sample_rec = get_sample(sample['id'])
         sample['location'] = sample_rec['location']
-        # exclude samples where ANY?? vial in state DisposeRequested, Disposed, Returned, or ReturnToSource
+        # exclude samples where all vials in state DisposeRequested, Disposed, Returned, or ReturnToSource
         vials = get_vials(sample['id'])
+        b_all_gone = True
         for vial in vials:
-            if vial['state_info'] in [STATE_NAME[Vial_States.Disposed], 
+            if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed], 
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
                                       STATE_NAME[Vial_States.ReturnToSource]]:
-                samples.remove(sample)
+                b_all_gone = False
                 break
+        if b_all_gone:
+            samples.remove(sample)
     return samples
 
 
