@@ -27,7 +27,7 @@ import requests
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
 import json
-from enum import IntEnum
+from enum import IntEnum, unique
 import smtplib
 from email.mime.text import MIMEText
 import keyring
@@ -74,7 +74,7 @@ DAYS_TO_REVIEW_SHORT = config['System'].getint('days_to_review_short', fallback=
 #SMTPPort = 25
 #SUPPORT_EMAIL = 'jenny.simpson@scionresearch.com' #'wayne.schou@scionresearch.com'  #
 
-
+@unique
 class Vial_States(IntEnum):
     """ Enumeration of Vial States ids (must match database table vial_state_types.id) """
     RetrieveRequest = 5
@@ -211,6 +211,12 @@ def get_sample(sample_id):
     return sample
 
 
+def get_sample_userfields(sample_id):
+    udfs = freezerpro_post({'method': 'sample_userfields',
+                            'id': sample_id})
+    return udfs
+
+
 def get_vials(sample_id):
     data = freezerpro_post({'method': 'vials_sample',
                             'sample_id': sample_id,
@@ -252,9 +258,22 @@ def get_locations_in_state(state, sdfs=[]):
     """
     data = freezerpro_post({'method': 'vials_sample',
                             'vial_state_type_id': state,
+                            'dir': 'ASC',
+                            'limit':1000,
                            })
     # print(json.dumps(data, indent=4, sort_keys=True))
     locations = data['Locations']
+    total = data['Total']
+    while len(locations) < total:
+        more = freezerpro_post({'method': 'vials_sample',
+                                'vial_state_type_id': state,
+                                'limit':1000,
+                                'start':len(locations),
+                                'dir': 'ASC'})
+        if len(more['Locations']) == 0:
+            print('get_audit: All locations not returned Total={} Returned={}'.format(total, len(locations)))
+            break
+        locations.extend(more['Locations'])
     # print('Locations =', data['Total'])    
     if sdfs:
         for location in locations:
@@ -389,7 +408,8 @@ def samples_with_state_changes(date_flag, states=['Retrieve Request',
                                                   'Disposed',
                                                   'Returned',
                                                   'Store Request Approved',
-                                                  'Awaiting Delivery'
+                                                  'Awaiting Delivery',
+                                                  'Veritec Request'
                                                   ]):
     """ Return list of samples that have one of the specified state changes in the period specified
     :date_flag: all/today/yesterday/week/month/'date_from,date_to'

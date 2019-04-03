@@ -5,7 +5,7 @@
     <ProjectGuid>40308f43-8f2b-4fa7-bb0e-1fdba1254ede</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>EmailOperationsOfficersAboutRequests.py</StartupFile>
+    <StartupFile>UpdateSampleStateUDF.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -48,6 +48,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="UpdateSampleGroups.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UpdateSampleStateUDF.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="__init__.py">
