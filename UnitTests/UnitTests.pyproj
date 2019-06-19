@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>UnitTests</Name>
     <RootNamespace>UnitTests</RootNamespace>
-    <InterpreterId>MSBuild|PythonVirtualEnv|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|VirtualEnv|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,10 +26,10 @@
     <Compile Include="UnitTests.py" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="..\PythonVirtualEnv\">
-      <Id>PythonVirtualEnv</Id>
+    <Interpreter Include="..\VirtualEnv\">
+      <Id>VirtualEnv</Id>
       <Version>3.6</Version>
-      <Description>PythonVirtualEnv (Python 3.6 (64-bit))</Description>
+      <Description>VirtualEnv (Python 3.6 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>

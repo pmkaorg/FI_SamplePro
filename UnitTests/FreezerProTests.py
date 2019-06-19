@@ -2,12 +2,13 @@
 import requests
 import json
 API_URL = 'http://163.7.18.12/api'
+PASSWORD = ''  ##set to FreezerLDAP password (but don't save it!)
 
 #print(json.dumps({'method': 'freezers'}))
 #r = requests.post("http://163.7.18.12/api",
 #                  headers={'Content-Type': 'application/json'},
 #                  data=json.dumps({'method': 'freezers'}),
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 
 #data = r.json()
 #print(json.dumps(data, indent=4, sort_keys=True))
@@ -43,7 +44,7 @@ API_URL = 'http://163.7.18.12/api'
 #r = requests.post("http://163.7.18.12/api",
 #                  headers={'Content-Type': 'application/json'},
 #                  data=json.dumps(options),
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 #data = r.json()
 #if data.get('error', None):
 #    print(data['message'])
@@ -59,7 +60,7 @@ API_URL = 'http://163.7.18.12/api'
 #                  data = {'method': 'sample_info',
 #                          'id': '100337',
 #                          },
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 #data = r.json()
 #print(data)
 
@@ -69,7 +70,7 @@ API_URL = 'http://163.7.18.12/api'
 #                          'date_flag': '20/7/2018,1/8/2018',
 #                          'limit': 1000,  #1000 is maximum that can be returned
 #                          },
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 #data = r.json()
 #if (data['Total'] != len(data['AuditRec'])):
 #    print('All records not returned')
@@ -100,8 +101,8 @@ API_URL = 'http://163.7.18.12/api'
 
 #r = requests.post("http://163.7.18.12/api",
 #                  data={'method': 'vials_sample',
-#                        'sample_id': 112741},
-#                  auth=('admin', 'admin'))
+#                        'sample_id': 110592},
+#                  auth=('FreezerLDAP', PASSWORD))
 
 #data = r.json()
 ## print(json.dumps(data, indent=4, sort_keys=True))
@@ -109,26 +110,9 @@ API_URL = 'http://163.7.18.12/api'
 #print('Locations =', data['Total'])
 #print('Location fields', locations[0].keys())
 #for location in locations:
+#    print(location)
 #    print(location['state_color'], location['state_info'])
 
-
-
-#import requests
-#import json
-
-#r = requests.post("http://163.7.18.12/api",
-#                  data={'method': 'vials_sample',
-#                        'vial_state_type_id': 1},
-#                  auth=('admin', 'admin'))
-
-#data = r.json()
-#print(json.dumps(data, indent=4, sort_keys=True))
-#locations = data['Locations']
-#print('Locations =', data['Total'])
-## print('Location fields', locations[0].keys())
-#print('location_id', 'sample_id', 'barcode')
-#for location in locations:
-#    print(location['loc_id'], location['sample_id'], location['barcode_tag'])
 
 
 
@@ -137,13 +121,10 @@ API_URL = 'http://163.7.18.12/api'
 
 #r = requests.post("http://163.7.18.12/api",
 #                  data={'method': 'users'},
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 
 #data = r.json()
 #print(json.dumps(data, indent=4, sort_keys=True))
-
-
-
 
 
 
@@ -152,7 +133,7 @@ API_URL = 'http://163.7.18.12/api'
 
 #r = requests.post("http://163.7.18.12/api",
 #                  data={'method': 'user_groups' },
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 
 #data = r.json()
 ##print(json.dumps(data, indent=4, sort_keys=True))
@@ -166,7 +147,7 @@ API_URL = 'http://163.7.18.12/api'
 
 #r = requests.post("http://163.7.18.12/api",
 #                  data={'method': 'users'},
-#                  auth=('admin', 'admin'))
+#                  auth=('FreezerLDAP', PASSWORD))
 
 #data = r.json()
 ##print(json.dumps(data, indent=4, sort_keys=True))
@@ -179,30 +160,32 @@ API_URL = 'http://163.7.18.12/api'
 
 #r = requests.post("http://163.7.18.12/api",
 #                    data={'method': 'gen_token' },
-#                    auth=('admin', 'admin'))
+#                    auth=('FreezerLDAP', PASSWORD))
 #data = r.json()
 ##print(json.dumps(data, indent=4, sort_keys=True))
 #auth_token = data['auth_token']
 #print('Authentication token', auth_token)
 
-import smtplib
-from email.mime.text import MIMEText
-SMTPServer = '163.7.18.150'
-SMTPPort = 25
-title = 'My title'
-msg_content = '<h2>{title} &rarr; <font color="green">OK</font></h2>\n'.format(title=title)
-message = MIMEText(msg_content, 'html')
 
-message['From'] = 'Sample Management System'
-message['To'] = 'Wayne'
-message['Subject'] = 'Test HTML'
 
-msg_full = message.as_string()
+#import smtplib
+#from email.mime.text import MIMEText
+#SMTPServer = '163.7.18.150'
+#SMTPPort = 25
+#title = 'My title'
+#msg_content = '<h2>{title} &rarr; <font color="green">OK</font></h2>\n'.format(title=title)
+#message = MIMEText(msg_content, 'html')
 
-server = smtplib.SMTP(SMTPServer, SMTPPort)
-server.starttls()
-#server.login('sender@server.com', 'senderpassword')
-server.sendmail("DoNotReply@scionresearch.com",
-                ['wayne.schou@scionresearch.com'],
-                msg_full)
-server.quit()
+#message['From'] = 'Sample Management System'
+#message['To'] = 'Wayne'
+#message['Subject'] = 'Test HTML'
+
+#msg_full = message.as_string()
+
+#server = smtplib.SMTP(SMTPServer, SMTPPort)
+#server.starttls()
+##server.login('sender@server.com', 'senderpassword')
+#server.sendmail("DoNotReply@scionresearch.com",
+#                ['wayne.schou@scionresearch.com'],
+#                msg_full)
+#server.quit()

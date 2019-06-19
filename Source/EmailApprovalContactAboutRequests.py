@@ -7,7 +7,7 @@ Date: August 2018
 """
 
 from FreezerPro import send_html, dict_to_html, email_OperationsOfficer, email_Support, Vial_States, STATE_NAME,\
-    get_locations_in_state, get_users_by_fullname, get_sample, SUPPORT_EMAIL
+    get_locations_in_state, get_users_by_fullname, get_users_by_username, get_sample, SUPPORT_EMAIL
 
 
 def email_sample_udf_about_state_change(user_udf, state):
@@ -38,11 +38,23 @@ def email_sample_udf_about_state_change(user_udf, state):
                             ['sample_id', 'barcode_tag', 'sample_type', 'owner', user_udf], 
                             ['Sample Id', 'Barcode', 'Sample Type', 'Owner', user_udf])
         msg.append(html)
-        #msg.append('sample_id\tbarcode\t            Sample Type            \t     Owner     \t{:15}'.format(user_udf))
-        #for location in invalid_udf_locations:
-        #    msg.append('{:15}\t{:7}\t{:32}\t{:15}\t{}'
-        #               .format(location['sample_id'], location['barcode_tag'], location['sample_type'], location['owner'], location[user_udf]))
         email_OperationsOfficer('Invalid {}'.format(user_udf), '<br>\r\n'.join(msg))
+
+        # also email owner when user_udf is not valid
+        owner_usernames = set([location['owner'] for location in invalid_udf_locations])
+        owners = get_users_by_username(owner_usernames)
+        for owner in owners:
+            invalid_of_owner = [location for location in invalid_udf_locations if location['owner'] == owner['username']]
+            if invalid_of_owner:
+                msg = []
+                msg.append('These samples with status {} do not have a valid {}:'
+                           .format(STATE_NAME[state], user_udf))
+                html = dict_to_html(invalid_of_owner, 
+                                    ['sample_id', 'barcode_tag', 'sample_type', 'owner', user_udf], 
+                                    ['Sample Id', 'Barcode', 'Sample Type', 'Owner', user_udf])
+                msg.append(html)
+                send_html(owner['fullname'], [owner['email']], 'SamplePro: Invalid {}'.format(user_udf), '<br>\r\n'.join(msg))
+
     for user in users:
         locations_of_user = [location for location in locations if location[user_udf] == user['fullname']]
         msg = []
@@ -53,11 +65,6 @@ def email_sample_udf_about_state_change(user_udf, state):
                             ['sample_id', 'barcode_tag', 'sample_type', 'owner'], 
                             ['Sample Id', 'Barcode', 'Sample Type', 'Owner'])
         msg.append(html)
-        #msg.append('sample_id\tbarcode\t            Sample Type            \t     Owner')
-        #for location in locations_of_user:
-        #    msg.append('{:15}\t{:7}\t{:32}\t{}'.format(location['sample_id'], location['barcode_tag'], location['sample_type'], location['owner']))
-        #msg.append('')
-
         send_html(user['fullname'], [user['email']], 'SamplePro: sample requests', '<br>\r\n'.join(msg))
     return users
 

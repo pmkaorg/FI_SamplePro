@@ -62,6 +62,7 @@ SEND_EMAIL_FROM = config['System'].get('send_email_from', fallback='SamplePro <d
 SUPPORT_EMAIL = config['System']['Support_Email']
 OPERATION_OFFICER_EMAIL = config['System'].get('operation_officer_email', fallback='Operations.Officer@scionresearch.com')
 VERITEC_EMAIL = config['System'].get('veritec_email', fallback='Veritec@scionresearch.com')
+MEDIA_EMAIL = config['System'].get('media_email', fallback='TreePropagation@scionresearch.com')
 EMAIL_SUPPORT_ONLY = config['System'].getboolean('EMAIL_SUPPORT_ONLY', fallback=False)
 DAYS_TO_REVIEW_NORMAL = config['System'].getint('days_to_review_normal', fallback=30)
 DAYS_TO_REVIEW_SHORT = config['System'].getint('days_to_review_short', fallback=7)
@@ -77,29 +78,48 @@ DAYS_TO_REVIEW_SHORT = config['System'].getint('days_to_review_short', fallback=
 @unique
 class Vial_States(IntEnum):
     """ Enumeration of Vial States ids (must match database table vial_state_types.id) """
-    RetrieveRequest = 5
+    Received = 1
+    WithOwner = 2
+    Stored = 3
     StoreRequest = 4
-    DisposeRequest = 8
-    Disposed = 9
+    RetrieveRequest = 5
     ReturnToSource = 6,
     Returned = 7,
+    DisposeRequest = 8
+    Disposed = 9
     ApprovalRequested = 10,
     StoreRequestApproved = 11,
     AwaitingDelivery = 12,
     VeritecRequest = 13,
-
+    SampleFinished = 14,
+    SamplePartiallyUsed = 15,
+    MediaRequest = 16,
+    StoredSpare = 17,
+    SendToExternal = 18,
+    SampleUnused = 19,
+    SampleDestroyed = 20
 
 STATE_NAME = {
-    Vial_States.RetrieveRequest:'Retrieve Request',
-    Vial_States.StoreRequest:'Store Request',
-    Vial_States.DisposeRequest:'Dispose Request',
-    Vial_States.Disposed:'Disposed',
-    Vial_States.ReturnToSource:'Return to Source',
+    Vial_States.Received:'Stores - Received',
+    Vial_States.WithOwner:'With Owner/In Lab',
+    Vial_States.Stored:'Stored',
+    Vial_States.StoreRequest:'Stores - Request to Store',
+    Vial_States.RetrieveRequest:'Stores - Request to Retrieve',
+    Vial_States.ReturnToSource:'Stores - Return to Source',
     Vial_States.Returned:'Returned',
-    Vial_States.ApprovalRequested:'Approval Requested',
-    Vial_States.StoreRequestApproved:'Store Request Approved',
+    Vial_States.DisposeRequest:'Stores - Request to Dispose',
+    Vial_States.Disposed:'Disposed',
+    Vial_States.ApprovalRequested:'Lead - Request to Extend Storage',
+    Vial_States.StoreRequestApproved:'Lead - Request to Extend Storage Approved',
     Vial_States.AwaitingDelivery:'Awaiting Delivery',
-    Vial_States.VeritecRequest:'Veritec Request'
+    Vial_States.VeritecRequest:'Veritec Request',
+    Vial_States.SampleFinished: 'Sample - Finished, Live Derivs',
+    Vial_States.SamplePartiallyUsed: 'Sample - Partially Used',
+    Vial_States.MediaRequest:'Media Request',
+    Vial_States.StoredSpare:'Stored - Spare',
+    Vial_States.SendToExternal:'Stores - Send to External',
+    Vial_States.SampleUnused:'Sample - Unused',
+    Vial_States.SampleDestroyed:'Sample - Destroyed'
     }
 
 auth_token = None
@@ -215,6 +235,13 @@ def get_sample_userfields(sample_id):
     udfs = freezerpro_post({'method': 'sample_userfields',
                             'id': sample_id})
     return udfs
+
+
+def get_location(location_id):
+    location = freezerpro_post({'method': 'location_info',
+                            'id': location_id,
+                           })
+    return location
 
 
 def get_vials(sample_id):
@@ -393,24 +420,15 @@ def email_Veritec(subject, msg):
     send_html('Veritec', [VERITEC_EMAIL], subject, msg)
 
 
+def email_MediaRequests(subject, msg):
+    send_html('Tree Propagation', [MEDIA_EMAIL], subject, msg)
+
+
 def email_Support(subject, msg):
     send('SamplePro Support', [SUPPORT_EMAIL], subject, msg )
 
 
-def samples_with_state_changes(date_flag, states=['Retrieve Request', 
-                                                  'Store Request', 
-                                                  'Dispose Request',
-                                                  'Return to Source',
-                                                  'Approval Requested',
-                                                  'Stored',
-                                                  'Received',
-                                                  'With Owner',
-                                                  'Disposed',
-                                                  'Returned',
-                                                  'Store Request Approved',
-                                                  'Awaiting Delivery',
-                                                  'Veritec Request'
-                                                  ]):
+def samples_with_state_changes(date_flag, states=None):
     """ Return list of samples that have one of the specified state changes in the period specified
     :date_flag: all/today/yesterday/week/month/'date_from,date_to'
     :states: iterable of state strings to check 
@@ -424,12 +442,14 @@ def samples_with_state_changes(date_flag, states=['Retrieve Request',
     #print(obj_names)
     # states = ['Store Request', 'Retrieve Request', 'Dispose Request']
     # mm = [audit for audit in audits if audit['obj_name'] in states]
+    if not states:
+        states = STATE_NAME.values()
     state_changes = [{'type': audit['obj_name'], 
-                      'date': audit['created_at'],
-                      'user_name': audit['user_name'],
-                      'message': audit['message'],  
-                      'comments': audit['comments']} 
-                     for audit in audits if audit['obj_name'] in states]
+                        'date': audit['created_at'],
+                        'user_name': audit['user_name'],
+                        'message': audit['message'],  
+                        'comments': audit['comments']} 
+                        for audit in audits if audit['obj_name'] in states]
     #extract sample_id from message and add as distinct key
     for m in state_changes:
         pattern = 'State for vial <u>"(.*?)"<\/u>(?:.*?) ID: <u>(\d+)<\/u> changed from "(.*?)" to "(.*?)"'
@@ -478,7 +498,8 @@ def samples_nearing_reviewdate(days):
             if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed], 
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
-                                      STATE_NAME[Vial_States.ReturnToSource]]:
+                                      STATE_NAME[Vial_States.ReturnToSource],
+                                      STATE_NAME[Vial_States.SampleDestroyed]]:
                 b_all_gone = False
                 break
         if b_all_gone:
@@ -498,13 +519,14 @@ def samples_reviewdate_overdue():
                                       },
                                      ],
                             'sdfs': ['id', 'sample_type', 'owner_id'],
-                            'udfs': ['Review Date'],
+                            'udfs': ['Review Date', 'Approval Contact'],
                             })
     samples = data['Samples']
     if data['Total'] != len(samples):
         raise RuntimeError('Not all returned')
     for sample in samples[:]:
         sample['Review Date'] = sample['udfs']['Review Date']
+        sample['Approval Contact'] = sample['udfs']['Approval Contact']
         sample_rec = get_sample(sample['id'])
         sample['location'] = sample_rec['location']
         # exclude samples where all vials in state DisposeRequested, Disposed, Returned, or ReturnToSource
@@ -514,7 +536,8 @@ def samples_reviewdate_overdue():
             if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed], 
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
-                                      STATE_NAME[Vial_States.ReturnToSource]]:
+                                      STATE_NAME[Vial_States.ReturnToSource],
+                                      STATE_NAME[Vial_States.SampleDestroyed]]:
                 b_all_gone = False
                 break
         if b_all_gone:
@@ -528,9 +551,11 @@ def create_html_msg_about_states(*states):
     :param *states: iterable of Vial_States
     :return: html msg else None if no samples in specified states
     """
+    sampleids_by_currentstate = {}
     msg = []
     bSend_email = False
     for state in states:
+        sampleids_by_currentstate[STATE_NAME[state]] = set()
         locations = get_locations_in_state(state.value)
         if not locations:
             msg.append('No samples have status <b>{}</b>.'.format(STATE_NAME[state]))
@@ -540,11 +565,12 @@ def create_html_msg_about_states(*states):
         for location in locations:
             sample = get_sample(location['sample_id'])
             location['owner'] = sample['owner']
+            sampleids_by_currentstate[STATE_NAME[state]].add(str(location['sample_id']))
         # print('Location fields', locations[0].keys())
         msg.append('These samples currently have status <b>{}</b>:'.format(STATE_NAME[state]))
         html = dict_to_html(locations, 
-                            ['sample_id', 'barcode_tag', 'sampletype_name', 'location', 'owner'], 
-                            ['Sample Id', 'Barcode', 'Sample Type', 'Location', 'Owner'])
+                            ['sample_id', 'barcode_tag', 'sampletype_name', 'location', 'position', 'owner'], 
+                            ['Sample Id', 'Barcode', 'Sample Type', 'Location', 'Position', 'Owner'])
         msg.append(html)
         msg.append('')
 
@@ -552,12 +578,15 @@ def create_html_msg_about_states(*states):
         return None
 
     # retreive names for selected vial state id
-    vial_state_names = [STATE_NAME[state_id] for state_id in states]
+    vial_state_names = ["'"+STATE_NAME[state_id]+"'" for state_id in states]
 
     sample_state_changes = samples_with_state_changes('today')
     # remove state changes not in states
     for state_change in sample_state_changes[:]:
         if state_change['to_state'] not in vial_state_names: 
+            sample_state_changes.remove(state_change)
+        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['type']]:
+            print("Remove sample not currently in state", state_change)
             sample_state_changes.remove(state_change)
         else:
             # print(state_change['date'], state_change['type'], 'for sample', state_change['sample_id'], 'by', state_change['user_name'])
@@ -578,6 +607,9 @@ def create_html_msg_about_states(*states):
     # remove state changes not in states
     for state_change in sample_state_changes[:]:
         if state_change['to_state'] not in vial_state_names: 
+            sample_state_changes.remove(state_change)
+        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['type']]:
+            print("Remove sample not currently in state", state_change)
             sample_state_changes.remove(state_change)
         else:
             # print(state_change['date'], state_change['type'], 'for sample', state_change['sample_id'], 'by', state_change['user_name'])

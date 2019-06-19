@@ -74,18 +74,11 @@ def find_samplestates(date_flag):
             elif vial['state_info'] == STATE_NAME[Vial_States.Disposed]:
                 if not new_state:
                     new_state = 'Disposed'
-                #elif new_state != 'Disposed':
-                #    new_state = 'Mixed'
             elif vial['state_info'] == STATE_NAME[Vial_States.Returned]:
-                if not new_state:
-                    new_state = 'Returned'
-                elif new_state != 'Awaiting Delivery':
+                if new_state != 'Awaiting Delivery':
                     new_state = 'Returned'
             elif vial['state_info'] == STATE_NAME[Vial_States.AwaitingDelivery]:
-                if not new_state:
-                    new_state = 'Awaiting Delivery'
-                elif new_state != 'Awaiting Delivery':
-                    new_state = 'Awaiting Delivery'
+                new_state = 'Awaiting Delivery'
         if current_state != new_state:
             # print('Update state of sample {} from {} to {}'.format(sample['id'], current_state, new_state))
             samples_to_update[sample['id']] = {'UID':sample['id'], 

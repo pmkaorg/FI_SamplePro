@@ -1,7 +1,7 @@
 #! python3
 """ Email Operations Officer a list of sampleids and barcodes that have state
-'Retrieve Request', 'Store Request', 'Dispose Request', 'Return to Source', 'Store Request Approved', 'Awaiting Delivery'
-
+ Vial_States.RetrieveRequest, Vial_States.StoreRequest, Vial_States.DisposeRequest, Vial_States.ReturnToSource,
+ Vial_States.SendToExternal, Vial_States.StoreRequestApproved, Vial_States.ApprovalRequested
 Author: Wayne Schou
 Date: Dec 2018
 
@@ -17,8 +17,9 @@ if __name__ == '__main__':
                                 Vial_States.StoreRequest,
                                 Vial_States.DisposeRequest,
                                 Vial_States.ReturnToSource,
+                                Vial_States.SendToExternal,
                                 Vial_States.StoreRequestApproved,
-                                Vial_States.AwaitingDelivery)
+                                Vial_States.ApprovalRequested)
         if msg:
             email_OperationsOfficer('SamplePro requests', msg)
             print('Email sent to operations officers')

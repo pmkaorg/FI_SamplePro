@@ -1,0 +1,57 @@
+﻿id,obj_id,inuse,name,vials,description,created_at,updated_at
+8,8,27,BP 321,64,Team Biopolymers and Chemicals,09/08/2018,07/12/2018
+9,9,24,BP 451,56,Biopolymer Network,09/08/2018,11/12/2018
+10,10,59,BP 459,89,Bioplastics and Related Projects,09/08/2018,13/12/2018
+11,11,3,BP 460,4,Packaging,09/08/2018,05/12/2018
+12,12,0,BP 483,0,TRST Manufacturing,09/08/2018,09/08/2018
+13,13,94,BP 542,169,Extrusion Plus,09/08/2018,12/12/2018
+14,14,69,BP 568,138,"Polymers, Composities, Packaging and Chemicals Commercial",09/08/2018,12/12/2018
+15,15,0,BP 577,0,Fulton Hogan,09/08/2018,09/08/2018
+16,16,0,BP 599,0,Commercial Packaging,09/08/2018,09/08/2018
+17,17,0,BP 605,0,Catalyst 3D Printing,09/08/2018,09/08/2018
+18,18,0,BP 628,0,Packaging - Improved Box Lifetime,09/08/2018,09/08/2018
+19,19,0,BP 629,0,Packaging - Coatings Commercialisation,09/08/2018,09/08/2018
+20,20,0,BP 630,0,Packaging - Traceability,09/08/2018,09/08/2018
+21,21,0,BP 631,0,Packaging - Bio Barrier,09/08/2018,09/08/2018
+22,22,0,BP 650,0,NSC10 Sfti Spearhead 3D/4D printing,09/08/2018,09/08/2018
+23,23,1,BP 672,2,Tyre-REX,09/08/2018,21/08/2018
+24,24,1,BP 694,1,FC Five Trials,09/08/2018,09/08/2018
+25,25,0,BP 701,0,Masterbatching PSAF,09/08/2018,09/08/2018
+26,26,0,BP 723,0,MIPS,09/08/2018,09/08/2018
+27,27,0,BP 741,0,Microplastics in Auckland Waterways,09/08/2018,09/08/2018
+28,28,6,BP 749,37,Packaging Triggered Degradation,09/08/2018,07/12/2018
+2,2,28,BT - 1st grinding on 17/05/2017,28, ,18/01/2018,18/01/2018
+3,3,4,BT - 2nd grinding on 27/05/2017,4, ,18/01/2018,24/01/2018
+4,4,63,BT - 3rd grinding on 12/09/2017,63, ,18/01/2018,31/08/2018
+30,30,87,CM 708,182,Woodforce,20/08/2018,13/12/2018
+29,29,7,CM 709,70,Ligate,20/08/2018,20/11/2018
+37,37,1,CO 742,1,Totara Industry Pilot (TIP),14/11/2018,14/11/2018
+53,53,168,FG 585,168,"Speciality Wood Products Partnership, KPI 2.13, PL Heidi Dungey",07/12/2018,07/12/2018
+55,55,0,FG 680,0,"Breeding for Resilience, KPI 2.11, PL Natalie Graham",07/12/2018,07/12/2018
+56,56,0,FG 681,0,"Hi-Tech Forests, KPI 2.13, PL Emily Telfer",07/12/2018,07/12/2018
+57,57,0,FG 682,0,"Alternative and Indigenous Species, KPI 2.13, PL Emily Telfer",07/12/2018,07/12/2018
+54,54,137,FG 765,137,"Radiata Pine Breeding Company, KPI 2.01, PL Emily Telfer",07/12/2018,07/12/2018
+32,32,3601,FP 510,3616,HTHF experiment,22/08/2018,13/12/2018
+7,7,2660,FP 664,2660,2017-2018 Timing of Infection Trial,09/08/2018,05/12/2018
+5,5,0,"FP RNC Timing of Infection Stuart, Carol, Ian 2017-2018",0,"qPCR samples collected from RNC Timing of Infection trial 2017-2018 for Stuart, Carol and Ian",12/04/2018,12/04/2018
+38,38,380,FS 567,380,GCFF,03/12/2018,05/12/2018
+39,39,0,gene_editing_guide_plasmid,0,Ubq10Promoter with NPTII selection and Douglas fir U6 promoter and Dang guide without crispr site,06/12/2018,06/12/2018
+40,40,0,pASH1,0,SuperU pro +EGFP-skipping peptide-NPTII,06/12/2018,06/12/2018
+41,41,0,pCP08,0,pCP8 - pUC57_gene editing guide plasmid_GUX1 - 424FW,06/12/2018,06/12/2018
+51,51,0,pCR II TOPO - GusPlus,0,E. coli (Top10),06/12/2018,06/12/2018
+52,52,0,pCR II TOPO-SuUTR,0,E. coli (Top10),06/12/2018,06/12/2018
+48,48,0,pCR2-Topo-GusPlus,0,E. coli (Top10),06/12/2018,06/12/2018
+49,49,0,pCR2-Topo-SuUTR,0,E. coli (Top10),06/12/2018,06/12/2018
+50,50,0,pCRII-Blunt-Topo- PrGUX-4Guide,0,E. coli (Top10),06/12/2018,06/12/2018
+46,46,0,pENTR-D-GusPlus,0,E. coli (Top10),06/12/2018,06/12/2018
+45,45,0,pENTR-D-PrGUX1_RNAi,0,E. coli (Top10),06/12/2018,06/12/2018
+47,47,0,pENTR-D-SuUTR,0,E. coli (Top10),06/12/2018,06/12/2018
+42,42,0,pLP42,0,SuperU + GusPlus,06/12/2018,06/12/2018
+43,43,0,pUC57-Cas9,0,SuperU + Cas9 (non codon optimized),06/12/2018,06/12/2018
+44,44,0,pUC57-Guide PrGUX1 ,0,Douglas fir U6 promoter with PrGUX1 crispr site and Dang guide in pUC57,06/12/2018,06/12/2018
+58,58,15,Strain collection,15,PC2 strain collection,17/12/2018,17/12/2018
+31,31,38,WF 537,44,Wood and Fibre,21/08/2018,19/11/2018
+35,35,874,WF 587,877,High Value Processing,29/10/2018,14/11/2018
+33,33,808,WF 603,810,Bioactives Wood Preservation,28/09/2018,01/11/2018
+36,36,405,WF 620,406,Wood Modification - Thermal Modification,29/10/2018,12/11/2018
+34,34,8,WF 703,10,MBIE MK Heartwood Durability,29/10/2018,01/11/2018

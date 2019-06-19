@@ -27,6 +27,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EmailApprovalContactAboutRequests.py" />
+    <Compile Include="EmailAboutMediaRequests.py" />
     <Compile Include="EmailVeritecAboutRequests.py" />
     <Compile Include="EmailOperationsOfficersAboutRequests.py">
       <SubType>Code</SubType>
