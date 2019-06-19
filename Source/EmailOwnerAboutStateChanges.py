@@ -48,11 +48,11 @@ def email_owner_about_state_change(date_flag):
 
 if __name__ == '__main__':
     try:
-        email_sent = email_owner_about_state_change('today')  
-        #email_sent = email_owner_about_state_change('yesterday')  
+        owners = email_owner_about_state_change('today')  
+        #owners = email_owner_about_state_change('yesterday')  
         # temp for testing      
-        # email_sent = email_owner_about_state_change('7/8/2018,8/8/2018')
-        print('Email sent', email_sent)
+        # owners = email_owner_about_state_change('7/8/2018,8/8/2018')
+        print('Email sent to', owners)
     except Exception as err:
         # print(err)
         email_Support('SamplePro error in EmailOwnerAboutStateChanges', err )

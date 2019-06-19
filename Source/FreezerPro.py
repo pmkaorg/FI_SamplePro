@@ -551,11 +551,10 @@ def create_html_msg_about_states(*states):
     :param *states: iterable of Vial_States
     :return: html msg else None if no samples in specified states
     """
-    sampleids_by_currentstate = {}
+    sampleids_by_currentstate = {"'"+state+"'":set() for state in STATE_NAME.values()}
     msg = []
     bSend_email = False
     for state in states:
-        sampleids_by_currentstate[STATE_NAME[state]] = set()
         locations = get_locations_in_state(state.value)
         if not locations:
             msg.append('No samples have status <b>{}</b>.'.format(STATE_NAME[state]))
@@ -565,7 +564,7 @@ def create_html_msg_about_states(*states):
         for location in locations:
             sample = get_sample(location['sample_id'])
             location['owner'] = sample['owner']
-            sampleids_by_currentstate[STATE_NAME[state]].add(str(location['sample_id']))
+            sampleids_by_currentstate["'"+STATE_NAME[state]+"'"].add(str(location['sample_id']))
         # print('Location fields', locations[0].keys())
         msg.append('These samples currently have status <b>{}</b>:'.format(STATE_NAME[state]))
         html = dict_to_html(locations, 
@@ -585,7 +584,7 @@ def create_html_msg_about_states(*states):
     for state_change in sample_state_changes[:]:
         if state_change['to_state'] not in vial_state_names: 
             sample_state_changes.remove(state_change)
-        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['type']]:
+        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['to_state']]:
             print("Remove sample not currently in state", state_change)
             sample_state_changes.remove(state_change)
         else:
@@ -608,7 +607,7 @@ def create_html_msg_about_states(*states):
     for state_change in sample_state_changes[:]:
         if state_change['to_state'] not in vial_state_names: 
             sample_state_changes.remove(state_change)
-        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['type']]:
+        elif state_change['sample_id'] not in sampleids_by_currentstate[state_change['to_state']]:
             print("Remove sample not currently in state", state_change)
             sample_state_changes.remove(state_change)
         else:
