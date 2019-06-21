@@ -66,12 +66,13 @@ def find_samplestates(date_flag):
         #print([vial['state_info'] for vial in vials])
         new_state = None
         for vial in vials:
-            if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed], 
+            if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed],
+                                          STATE_NAME[Vial_States.SampleDestroyed],
                                           STATE_NAME[Vial_States.Returned],
                                           STATE_NAME[Vial_States.AwaitingDelivery]]:
                 new_state = 'Current'
                 break;
-            elif vial['state_info'] == STATE_NAME[Vial_States.Disposed]:
+            elif vial['state_info'] == STATE_NAME[Vial_States.Disposed] or vial['state_info'] == STATE_NAME[Vial_States.SampleDestroyed]:
                 if not new_state:
                     new_state = 'Disposed'
             elif vial['state_info'] == STATE_NAME[Vial_States.Returned]:
