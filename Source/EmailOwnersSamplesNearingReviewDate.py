@@ -4,17 +4,15 @@ Will not report on samples where ANY sample vial/location has a Disposed, Dispos
 """
 
 from FreezerPro import samples_nearing_reviewdate, dict_to_html, send_html, email_Support, get_users_by_id, SUPPORT_EMAIL, \
-                       DAYS_TO_REVIEW_NORMAL, DAYS_TO_REVIEW_SHORT
+                       DAYS_TO_REVIEW_NORMAL, DAYS_TO_REVIEW_SHORT, SHORT_REVIEW_REMINDER
 from datetime import datetime
 
-# number of days between creation and review date where sample is considered short term
-SHORT_TERM_SAMPLE = 42
 
 def email_owners_longterm_samples_nearing_reviewdate(days):
     samples = samples_nearing_reviewdate(days)
     samples = [sample for sample in samples 
                if (datetime.strptime( sample['Review Date'], '%d/%m/%Y') - datetime.strptime(sample['created_at'], '%d/%m/%Y')).days 
-                   > SHORT_TERM_SAMPLE
+                   > SHORT_REVIEW_REMINDER
               ]
     # print(samples)
     # users = get_users()
@@ -42,7 +40,7 @@ def email_owners_shortterm_samples_nearing_reviewdate(days):
     samples = samples_nearing_reviewdate(days)
     samples = [sample for sample in samples 
                if (datetime.strptime( sample['Review Date'], '%d/%m/%Y') - datetime.strptime(sample['created_at'], '%d/%m/%Y')).days 
-                    <= SHORT_TERM_SAMPLE
+                    <= SHORT_REVIEW_REMINDER
               ]
     # print(samples)
     # users = get_users()

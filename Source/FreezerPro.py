@@ -66,6 +66,7 @@ MEDIA_EMAIL = config['System'].get('media_email', fallback='TreePropagation@scio
 EMAIL_SUPPORT_ONLY = config['System'].getboolean('EMAIL_SUPPORT_ONLY', fallback=False)
 DAYS_TO_REVIEW_NORMAL = config['System'].getint('days_to_review_normal', fallback=30)
 DAYS_TO_REVIEW_SHORT = config['System'].getint('days_to_review_short', fallback=7)
+SHORT_REVIEW_REMINDER = config['System'].getint('short_review_reminder', fallback=365)
 
 ## Constants:
 #API_URL = 'https://freezerpro.scionresearch.com/api'  # Production database
