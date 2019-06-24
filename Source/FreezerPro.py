@@ -114,7 +114,7 @@ STATE_NAME = {
     Vial_States.StoreRequestApproved:'Lead - Request to Extend Storage Approved',
     Vial_States.AwaitingDelivery:'Awaiting Delivery',
     Vial_States.VeritecRequest:'Veritec Request',
-    Vial_States.SampleFinished: 'Sample - Finished, Live Derivs',
+    Vial_States.SampleFinished: 'Sample - Finished, Live Derivs Created',
     Vial_States.SamplePartiallyUsed: 'Sample - Partially Used',
     Vial_States.MediaRequest:'Media Request',
     Vial_States.StoredSpare:'Stored - Spare',
