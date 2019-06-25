@@ -64,22 +64,17 @@ def find_samplestates(date_flag):
         #print(sample)
         #print(current_state)
         #print([vial['state_info'] for vial in vials])
-        new_state = None
-        for vial in vials:
-            if vial['state_info'] not in [STATE_NAME[Vial_States.Disposed],
-                                          STATE_NAME[Vial_States.SampleDestroyed],
-                                          STATE_NAME[Vial_States.Returned],
-                                          STATE_NAME[Vial_States.AwaitingDelivery]]:
-                new_state = 'Current'
-                break;
-            elif vial['state_info'] == STATE_NAME[Vial_States.Disposed] or vial['state_info'] == STATE_NAME[Vial_States.SampleDestroyed]:
-                if not new_state:
-                    new_state = 'Disposed'
-            elif vial['state_info'] == STATE_NAME[Vial_States.Returned]:
-                if new_state != 'Awaiting Delivery':
-                    new_state = 'Returned'
-            elif vial['state_info'] == STATE_NAME[Vial_States.AwaitingDelivery]:
-                new_state = 'Awaiting Delivery'
+        if any(vial['state_info'] == STATE_NAME[Vial_States.AwaitingDelivery] for vial in vials):
+            new_state = 'Awaiting Delivery'
+        elif any(vial['state_info'] == STATE_NAME[Vial_States.Returned] for vial in vials):
+            new_state = 'Returned'
+        elif any(vial['state_info'] == STATE_NAME[Vial_States.Disposed] or \
+                 vial['state_info'] == STATE_NAME[Vial_States.SampleDestroyed] or \
+                 vial['state_info'] == STATE_NAME[Vial_States.SampleFinished] for vial in vials):
+            new_state = 'Disposed'
+        else:
+            new_state = 'Current'
+
         if current_state != new_state:
             # print('Update state of sample {} from {} to {}'.format(sample['id'], current_state, new_state))
             samples_to_update[sample['id']] = {'UID':sample['id'], 
@@ -141,10 +136,10 @@ if __name__ == '__main__':
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.AwaitingDelivery)
         (samples_to_update, sample_type_missing_udf) = find_samplestates('yesterday')
         if samples_to_update:
-            #print(samples_to_update)
-            #print(len(samples_to_update))
+            # print(samples_to_update)
+            # print(len(samples_to_update))
             update_samples(samples_to_update)
-            #print('Completed Update')
+            # print('Completed Update')
         if sample_type_missing_udf:
             email_Support('SamplePro Sample Types missing SampleState and SampleStateDate UDF', 
                           'The following sample types do not have user-defined fields "SampleState" and "SampleStateDate"\n'+

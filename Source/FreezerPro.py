@@ -114,7 +114,7 @@ STATE_NAME = {
     Vial_States.StoreRequestApproved:'Lead - Request to Extend Storage Approved',
     Vial_States.AwaitingDelivery:'Awaiting Delivery',
     Vial_States.VeritecRequest:'Veritec Request',
-    Vial_States.SampleFinished: 'Sample - Finished, Live Derivs Created',
+    Vial_States.SampleFinished: 'Sample - Finished',
     Vial_States.SamplePartiallyUsed: 'Sample - Partially Used',
     Vial_States.MediaRequest:'Media Request',
     Vial_States.StoredSpare:'Stored - Spare',
@@ -500,7 +500,8 @@ def samples_nearing_reviewdate(days):
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
                                       STATE_NAME[Vial_States.ReturnToSource],
-                                      STATE_NAME[Vial_States.SampleDestroyed]]:
+                                      STATE_NAME[Vial_States.SampleDestroyed],
+                                      STATE_NAME[Vial_States.SampleFinished]]:
                 b_all_gone = False
                 break
         if b_all_gone:
@@ -538,7 +539,8 @@ def samples_reviewdate_overdue():
                                       STATE_NAME[Vial_States.DisposeRequest],
                                       STATE_NAME[Vial_States.Returned],
                                       STATE_NAME[Vial_States.ReturnToSource],
-                                      STATE_NAME[Vial_States.SampleDestroyed]]:
+                                      STATE_NAME[Vial_States.SampleDestroyed],
+                                      STATE_NAME[Vial_States.SampleFinished]]:
                 b_all_gone = False
                 break
         if b_all_gone:
