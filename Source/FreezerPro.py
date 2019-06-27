@@ -96,9 +96,9 @@ class Vial_States(IntEnum):
     SamplePartiallyUsed = 15,
     MediaRequest = 16,
     StoredSpare = 17,
-    SendToExternal = 18,
-    SampleUnused = 19,
-    SampleDestroyed = 20
+    SampleDestroyed = 18
+    SampleUnused = 20,
+    SendToExternal = 21,
 
 STATE_NAME = {
     Vial_States.Received:'Stores - Received',
