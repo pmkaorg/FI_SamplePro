@@ -246,12 +246,10 @@ def get_location(location_id):
 
 
 def get_vials(sample_id):
-    data = freezerpro_post({'method': 'vials_sample',
-                            'sample_id': sample_id,
-                           })
-    vials = data['Locations']
-    if data['Total'] != len(vials):
-        raise RuntimeError('get_vials: Not all vials retrieved')
+    vials = freezerpro_retrieve({'method': 'vials_sample',
+                                 'sample_id': sample_id,
+                                },
+                                'Locations')
     return vials
 
 
@@ -392,13 +390,15 @@ def send(to, email_addresses, subject, msg):
 
     if isinstance(msg, Exception):
         msg = str(msg) +'\n\n' + ''.join(traceback.format_exception(type(msg), msg, msg.__traceback__))
-    msg = "From: {}\r\n"\
-          "To: {}\r\n"\
-          "Subject:{}\r\n\r\n"\
-          "{}".format(SEND_EMAIL_FROM, to, subject, msg)
+    message = MIMEText(msg, 'plain')
+    message['From'] = SEND_EMAIL_FROM
+    message['To'] = to
+    message['Subject'] = subject
+
+    msg_full = message.as_string()
     if EMAIL_SUPPORT_ONLY:
         email_addresses = [SUPPORT_EMAIL]
-    s.sendmail('<donotreply@scionresearch.com>', email_addresses, msg)
+    s.sendmail('<donotreply@scionresearch.com>', email_addresses, msg_full)
     s.quit()
 
 
