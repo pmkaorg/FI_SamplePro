@@ -10,7 +10,7 @@ import json
 import time
 import datetime
 from FreezerPro import samples_with_state_changes, get_sample, get_sample_userfields, get_vials, Vial_States, STATE_NAME,\
-     freezerpro_post, email_Support, get_locations_in_state,freezerpro_retrieve
+     freezerpro_post, email_Support, get_locations_in_state,freezerpro_retrieve, get_sampletypes
 
 
 def update_samples(samples_to_update):
@@ -76,16 +76,16 @@ def find_samplestates(date_flag):
     return (list(samples_to_update.values()), sample_type_missing_udf)
 
 
-
-def set_SampleState(vial_state):
+def find_SampleStateByVialState(vial_state):
     """ Update SampleState for samples where some vial in specified vial_state
     Args:
         vial_state: Use this state to retrieve vials (
     State of samples to be updated may not match vial_state specified [e.g. sample has two vials (Disposed, Returned), 
       sample state will be set to Returned if vial_state Disposed or Returned is used.]
+    Returns:
+        list(dict): dict of sample ids, samplestate, samplestatedate (UID, SampleState, SampleStateDate) that shoudl be updated
     """
     samples_to_update = {}
-    sample_type_missing_udf = set()
     vials = get_locations_in_state(vial_state)
     for vial in vials:
         sampleid = state_change['sample_id']
@@ -109,23 +109,30 @@ def set_SampleState(vial_state):
             print('Update state of sample {} from {} to {}'.format(sampleid, current_state, new_state))
             samples_to_update[sampleid] = {'UID':sampleid, 
                                                'SampleState': new_state, 
-                                               'SampleStateDate': datetime.datetime.now().date}
-    return (list(samples_to_update.values()), sample_type_missing_udf)
+                                               'SampleStateDate': datetime.datetime.now().date()}
+    return list(samples_to_update.values())
 
 
-def set_BlankSampleState():
+def find_SampleStateBySampleType(sampletypes):
+    """ Find SampleStates for samples with specified sample types that need updating
+    Args:
+        sampletypes: [list(str)] list of sample types names
+    Returns:
+        list(dict): dict of sample ids, samplestate, samplestatedate (UID, SampleState, SampleStateDate) that shoudl be updated
+    """
     samples_to_update = {}
     samples = freezerpro_retrieve({'method': 'advanced_search',
                                    'query': [{'type': 'sdf',
-                                              'field': 'name',
-                                              'op': 'ne',
-                                              'value': '_+.'
+                                              'field': 'sample_type_name',
+                                              'op': 'eq',
+                                              'value': sampletypes
                                               },
                                             ],
                                    'sdfs': ['id', 'sample_type_name'],
                                    'udfs': ['SampleState'],
                                   },
                                  'Samples')
+    print('Found {} samples'.format(len(samples)))
     for sample in samples:
         current_state = sample['udfs'].get('SampleState', None)
         sample_vials = get_vials(sample['id'])
@@ -147,17 +154,36 @@ def set_BlankSampleState():
         else:
             new_state = current_state  #'Current' # don't change samples where no vial state has been set
         if current_state != new_state:
-            print('Update state of sample {} from {} to {}'.format(sample['id'], current_state, new_state))
+            # print('Update state of sample {} from {} to {}'.format(sample['id'], current_state, new_state))
             samples_to_update[sample['id']] = {'UID':sample['id'], 
                                                'SampleState': new_state, 
-                                               'SampleStateDate': datetime.datetime.now().date}
+                                               'SampleStateDate': datetime.datetime.now().date().strftime('%d/%m/%Y')}
     return list(samples_to_update.values())
+
+
+def update_all_samples():
+    """ Update samplestate of all samples where sampletype has field SampleState
+    """
+    bFailure = false
+    sampletypes = get_sampletypes()
+    sampletypes_with_samplestate = [sampletype['name'] for sampletype in sampletypes if 'SampleState' in sampletype['fieldlist']]
+    for sampletype in sampletypes_with_samplestate:
+        try:
+            print(sampletype)
+            samples_to_update = find_SampleStateBySampleType([sampletype])
+            if samples_to_update:
+                # print(samples_to_update)
+                print(len(samples_to_update))
+                update_samples(samples_to_update)
+                print('Completed Update')
+        except Exception as err:
+            print('Failed to process', err)
+            bFailure = true
+    return bFailure
 
 
 if __name__ == '__main__':
     try:
-        sample_type_missing_udf = None
-        #samples_to_update = set_BlankSampleState()
         #(samples_to_update, sample_type_missing_udf) = find_samplestates('all')
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.SampleFinished)
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.Disposed)
@@ -166,9 +192,9 @@ if __name__ == '__main__':
         (samples_to_update, sample_type_missing_udf) = find_samplestates('yesterday')
         if samples_to_update:
             # print(samples_to_update)
-            #print(len(samples_to_update))
+            print(len(samples_to_update))
             update_samples(samples_to_update)
-            #print('Completed Update')
+            print('Completed Update')
         if sample_type_missing_udf:
             email_Support('SamplePro Sample Types missing SampleState and SampleStateDate UDF', 
                           'The following sample types do not have user-defined fields "SampleState" and "SampleStateDate"\n'+

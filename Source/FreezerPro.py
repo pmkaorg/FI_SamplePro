@@ -253,6 +253,13 @@ def get_vials(sample_id):
     return vials
 
 
+def get_sampletypes():
+    sampletypes = freezerpro_retrieve({'method': 'sample_types'}, 'SampleTypes')
+    for sampletype in sampletypes:
+        sampletype['fieldlist'] = sampletype['fields'].split('<br>')
+    return sampletypes
+
+
 def get_audit(date_flag):
     data = freezerpro_post({'method': 'audit',
                             'date_flag': date_flag,
