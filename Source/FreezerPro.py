@@ -36,6 +36,7 @@ import re
 import traceback
 import pandas as pd
 import get_config
+import time
 
 try:
     config = get_config.get_config()
@@ -129,7 +130,16 @@ auth_token = None
 def get_token():
     """ Get Authorization token
     """
-    password = keyring.get_password('FreezerPro', USER_NAME)
+    n_attempts = 1
+    while n_attempts < 6:
+        try:
+            password = keyring.get_password('FreezerPro', USER_NAME)
+        except e as keyring.errors.KeyringError:
+            raise RuntimeError('Error retrieving password') from e
+        if password:
+            break
+        time.sleep(10)
+        n_attempts += 1
     if not password:
         raise RuntimeError('Password for {} has not been stored. Use set_password.py.'.format(USER_NAME))
     urllib3.disable_warnings(category=InsecureRequestWarning)
