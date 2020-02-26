@@ -130,11 +130,12 @@ auth_token = None
 def get_token():
     """ Get Authorization token
     """
+    password = None
     n_attempts = 1
     while n_attempts < 6:
         try:
             password = keyring.get_password('FreezerPro', USER_NAME)
-        except e as keyring.errors.KeyringError:
+        except keyring.errors.KeyringError as e:
             raise RuntimeError('Error retrieving password') from e
         if password:
             break
