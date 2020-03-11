@@ -65,6 +65,7 @@ OPERATION_OFFICER_EMAIL = config['System'].get('operation_officer_email', fallba
 VERITEC_EMAIL = config['System'].get('veritec_email', fallback='Veritec@scionresearch.com')
 MEDIA_EMAIL = config['System'].get('media_email', fallback='TreePropagation@scionresearch.com')
 EMAIL_SUPPORT_ONLY = config['System'].getboolean('EMAIL_SUPPORT_ONLY', fallback=False)
+EMAIL_SUPPORT_ALSO = config['System'].getboolean('EMAIL_SUPPORT_ALSO', fallback=False)
 DAYS_TO_REVIEW_NORMAL = config['System'].getint('days_to_review_normal', fallback=30)
 DAYS_TO_REVIEW_SHORT = config['System'].getint('days_to_review_short', fallback=7)
 SHORT_REVIEW_REMINDER = config['System'].getint('short_review_reminder', fallback=365)
@@ -400,6 +401,8 @@ def send_html(to, email_addresses, subject, msg):
     if EMAIL_SUPPORT_ONLY:
         email_addresses = [SUPPORT_EMAIL]
     s.sendmail('donotreply@scionresearch.com', email_addresses, msg_full)
+    if EMAIL_SUPPORT_ALSO and not EMAIL_SUPPORT_ONLY:
+        s.sendmail('donotreply@scionresearch.com', [SUPPORT_EMAIL], msg_full)
     s.quit()
 
 
@@ -417,6 +420,8 @@ def send(to, email_addresses, subject, msg):
     if EMAIL_SUPPORT_ONLY:
         email_addresses = [SUPPORT_EMAIL]
     s.sendmail('<donotreply@scionresearch.com>', email_addresses, msg_full)
+    if EMAIL_SUPPORT_ALSO and not EMAIL_SUPPORT_ONLY:
+        s.sendmail('donotreply@scionresearch.com', [SUPPORT_EMAIL], msg_full)
     s.quit()
 
 
