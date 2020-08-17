@@ -189,7 +189,8 @@ if __name__ == '__main__':
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.Disposed)
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.Returned)
         #(samples_to_update, sample_type_missing_udf) = set_SampleState(Vial_States.AwaitingDelivery)
-        (samples_to_update, sample_type_missing_udf) = find_samplestates('yesterday')
+        (samples_to_update, sample_type_missing_udf) = find_samplestates('week')
+        #(samples_to_update, sample_type_missing_udf) = find_samplestates('yesterday')
         if samples_to_update:
             # print(samples_to_update)
             print(len(samples_to_update))

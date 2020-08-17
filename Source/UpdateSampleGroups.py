@@ -45,6 +45,8 @@ def import_samplegroups(task_codes):
     while(True):
         time.sleep(1)
         completed_response = freezerpro_post({'method':'get_job_status', 'job_id':job_id})
+        if completed_response['status'] == 1:
+            raise RuntimeError(completed_response['msg'] )
         if completed_response['status'] != 3:
             break
     return job_id
